@@ -9,7 +9,8 @@ class PinEntryBase(BaseModel):
 
 
 class PinEntryCreate(PinEntryBase):
-    pass
+    image: bytes 
+
 
 
 class PinEntry(PinEntryBase):

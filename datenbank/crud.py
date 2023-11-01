@@ -28,8 +28,9 @@ def get_pinentry(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.PinEntry).offset(skip).limit(limit).all()
 
 
-def create_user_pinentry(db: Session, pinentry: schemas.PinEntryCreate, user_id: int):
+def create_pinentry(db: Session, pinentry: schemas.PinEntryCreate, user_id: int):
     db_pinentry = models.PinEntry(**pinentry.dict(), user_id=user_id)
+    db_pinentry.image = pinentry.image
     db.add(db_pinentry)
     db.commit()
     db.refresh(db_pinentry)

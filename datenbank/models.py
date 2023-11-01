@@ -1,5 +1,5 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import LargeBinary
 
 from .database import Base
 
@@ -16,5 +16,5 @@ class PinEntry(Base):
 
     entry_id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    image = Column(String)
+    image = Column(LargeBinary)  
     text = Column(String)
