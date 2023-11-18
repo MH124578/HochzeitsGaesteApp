@@ -11,9 +11,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.widget.ImageButton;
+import android.view.View;
 
 import java.io.IOException;
 import java.io.InputStream;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -38,18 +42,26 @@ public class MainActivity extends Activity {
     private ImageView imageView;
     private EditText editText;
     private Uri imageUri;
+    private ImageButton btnSelectImage;
+    private Button uploadButton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        uploadButton = findViewById(R.id.uploadButton);
 
         imageView = findViewById(R.id.imageView);
         editText = findViewById(R.id.editText);
         Button uploadButton = findViewById(R.id.uploadButton);
+        btnSelectImage = findViewById(R.id.btnSelectImage);
 
-        imageView.setOnClickListener(v -> openImageChooser());
+        btnSelectImage.setOnClickListener(v -> {
+            openImageChooser();
+        });
+
+        // Event-Listener für den Upload-Button
         uploadButton.setOnClickListener(v -> {
             Log.d("UploadActivity", "Upload button clicked");
             if (imageUri != null) {
@@ -57,6 +69,10 @@ public class MainActivity extends Activity {
             } else {
                 Log.d("UploadActivity", "Kein Bild ausgewählt");
             }
+            imageView.setVisibility(View.VISIBLE);
+            editText.setVisibility(View.GONE);
+            uploadButton.setVisibility(View.GONE);
+            btnSelectImage.setVisibility(View.VISIBLE);
         });
     }
 
@@ -71,6 +87,10 @@ public class MainActivity extends Activity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             imageView.setImageURI(imageUri);
+            imageView.setVisibility(View.VISIBLE);
+            editText.setVisibility(View.VISIBLE);
+            uploadButton.setVisibility(View.VISIBLE);
+            btnSelectImage.setVisibility(View.GONE);
         }
     }
 
@@ -90,23 +110,18 @@ public class MainActivity extends Activity {
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        Log.d("UploadActivity", "Upload successful: " + response.toString());
                         if (response.isSuccessful() && response.body() != null) {
                             try {
                                 String responseString = response.body().string();
-                                int entryId = Integer.parseInt(responseString);  // Parse die ID aus der Antwort
-                                fetchAndDisplayImage(entryId);  // Rufe die Methode auf, um das Bild anzuzeigen
-
-                                Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                finish();
-                            } catch (IOException | NumberFormatException e) {
+                                JSONObject jsonResponse = new JSONObject(responseString);
+                                int entryId = jsonResponse.getInt("entry_id");
+                                fetchAndDisplayImage(entryId);
+                                // Rest des Codes...
+                            } catch (IOException | JSONException e) {
                                 Log.e("UploadActivity", "Fehler beim Parsen der Antwort", e);
                             }
                         }
                     }
-
 
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
