@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="golden_brown">#A27630</color>
+    <color name="charcoal">#314347</color>
+    <color name="tea_rose">#D7B5B5</color>
+    <color name="gun_metal">#292E39</color>
+    <color name="licorice">#231707</color>
+    <color name="creme">#ECE9E2</color>
 </resources>

@@ -2,17 +2,141 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/WeddingLink_logo"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <ImageView
+        android:id="@+id/greeting_screen_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/greeting_screen_bg"
+        android:scaleType="centerCrop"
+        android:layout_centerVertical="true"
+        app:srcCompat="@drawable/wedding_stockphoto"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <ImageView
+        android:id="@+id/greeting_screen_pttrn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:layout_marginTop="336dp"
+        android:contentDescription="@string/greeting_screen_pttrn"
+        android:scaleType="centerCrop"
+        android:layout_centerVertical="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/greeting_screen_bg"
+        app:srcCompat="@drawable/geometric_pattern_long_faded" />
+
+    <View
+        android:id="@+id/AGB_textview_bg"
+        android:layout_width="414dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="64dp"
+        android:alpha="0.9"
+        android:background="@color/creme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/continue_button"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/AGB_textview"
+        android:layout_width="302dp"
+        android:layout_height="47dp"
+        android:fontFamily="@font/raleway_regular"
+        android:gravity="center"
+        android:text="@string/AGB"
+        android:textColor="@color/charcoal"
+        android:textSize="11sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/AGB_textview_bg" />
+
+    <EditText
+        android:id="@+id/email_input_filed"
+        android:layout_width="278dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:autofillHints="emailAddress"
+        android:background="@drawable/rounded_edittext_background"
+        android:backgroundTint="@color/charcoal"
+        android:ems="10"
+        android:fontFamily="@font/lato_regular"
+        android:gravity="center"
+        android:hint="@string/email_input_field"
+        android:inputType="textEmailAddress"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/continue_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.95" />
+
+    <Button
+        android:id="@+id/continue_button"
+        android:layout_width="284dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/golden_brown"
+        android:fontFamily="@font/lato_regular"
+        android:text="@string/continue_btn"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/greeting_screen_bg"
+        app:layout_constraintVertical_bias="0.857" />
+
+    <ImageView
+        android:id="@+id/wedding_link_logo"
+        android:layout_width="195dp"
+        android:layout_height="184dp"
+        android:layout_marginTop="208dp"
+        android:contentDescription="@string/wedding_link_logo"
+        android:layout_centerVertical="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/greeting_screen_bg"
+        app:srcCompat="@drawable/weddinglink_logo_bg_removed_upscaled" />
+
+    <TextView
+        android:id="@+id/greeting_screen_text"
+        android:layout_width="379dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/perfectly_splendid"
+        android:gravity="center"
+        android:text="@string/greeting_screen_text"
+        android:textColor="@color/white"
+        android:textSize="35sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wedding_link_logo" />
+
+    <View
+        android:id="@+id/greeting_screen_underline"
+        android:layout_width="359dp"
+        android:layout_height="6dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/rounded_edittext_background"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/greeting_screen_text" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

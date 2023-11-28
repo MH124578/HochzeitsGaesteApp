@@ -1,3 +1,18 @@
 <resources>
-    <string name="app_name">HGApp</string>
+    <string name="app_name">Greeting_Screen</string>
+    <string name="greeting_screen_bg">Greeting Screen Background</string>
+    <string name="greeting_screen_pttrn">Greeting Screen Pattern</string>
+    <string name="continue_btn">Continue</string>
+    <string name="AGB">Indem du fortfährst, stimmst du den AGB von WeddingLink zu
+        und bestätigst, dass du unsere Datenschutzrichtlinien gelesen hast. Hinweis
+        bei Sammlung. </string>
+    <string name="wedding_link_logo">WeddingLink Logo</string>
+    <string name="greeting_screen_text">Willkommen bei WeddingLink</string>
+    <string name="email_input_field">Enter your E-Mail-Address</string>
+    <string name="title_activity_menu">MenuActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

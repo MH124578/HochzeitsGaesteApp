@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BottomNavigationViewTextStyleInactive">
+        <item name="android:fontFamily">@font/raleway_light</item>
+    </style>
+
+    <style name="BottomNavigationViewTextStyleActive">
+        <item name="android:fontFamily">@font/raleway_regular</item>
+    </style>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/Connections"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkable="false"
+        android:checked="false"
+        android:icon="@drawable/connections_location"
+        android:title="Connections" />
+    <item
+        android:id="@+id/Pinboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/pinboard_location"
+        android:title="Pinboard" />
+    <item
+        android:id="@+id/Home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/home_location"
+        android:title="Home" />
+    <item
+        android:id="@+id/Account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/account_location"
+        android:title="Account" />
+</menu>
