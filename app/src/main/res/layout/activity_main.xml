@@ -31,5 +31,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/editText"
         android:text="Hochladen" />
+    
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imagesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/uploadButton"/>
 
 </RelativeLayout>
