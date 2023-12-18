@@ -35,3 +35,8 @@ def create_pinentry(db: Session, pinentry: schemas.PinEntryCreate, user_id: int)
     db.commit()
     db.refresh(db_pinentry)
     return db_pinentry
+
+def get_all_pinentries(db: Session):
+    return db.query(models.PinEntry.entry_id).all()
+
+
