@@ -13,9 +13,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageButton;
 import android.view.View;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,16 +53,15 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fetchAndDisplayAllImages();
         uploadButton = findViewById(R.id.uploadButton);
 
         imageView = findViewById(R.id.imageView);
         editText = findViewById(R.id.editText);
-        Button uploadButton = findViewById(R.id.uploadButton);
+        uploadButton = findViewById(R.id.uploadButton);
         btnSelectImage = findViewById(R.id.btnSelectImage);
 
-        btnSelectImage.setOnClickListener(v -> {
-            openImageChooser();
-        });
+        btnSelectImage.setOnClickListener(v -> openImageChooser());
 
         // Event-Listener für den Upload-Button
         uploadButton.setOnClickListener(v -> {
@@ -73,6 +75,7 @@ public class MainActivity extends Activity {
             editText.setVisibility(View.GONE);
             uploadButton.setVisibility(View.GONE);
             btnSelectImage.setVisibility(View.VISIBLE);
+
         });
     }
 
@@ -91,12 +94,15 @@ public class MainActivity extends Activity {
             editText.setVisibility(View.VISIBLE);
             uploadButton.setVisibility(View.VISIBLE);
             btnSelectImage.setVisibility(View.GONE);
+
+            RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
+            recyclerView.setVisibility(View.GONE);
         }
     }
 
     private void uploadImageToServer(Uri imageUri, String text) {
         Log.d("UploadActivity", "Uploading image: " + imageUri.toString());
-        InputStream inputStream = null;
+        InputStream inputStream;
         try {
             inputStream = getContentResolver().openInputStream(imageUri);
             if (inputStream != null) {
@@ -115,11 +121,15 @@ public class MainActivity extends Activity {
                                 String responseString = response.body().string();
                                 JSONObject jsonResponse = new JSONObject(responseString);
                                 int entryId = jsonResponse.getInt("entry_id");
-                                fetchAndDisplayImage(entryId);
-                                // Rest des Codes...
                             } catch (IOException | JSONException e) {
                                 Log.e("UploadActivity", "Fehler beim Parsen der Antwort", e);
                             }
+                            imageView.setVisibility(View.GONE);
+
+                            RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
+                            recyclerView.setVisibility(View.VISIBLE);
+
+                            fetchAndDisplayAllImages();
                         }
                     }
 
@@ -177,32 +187,64 @@ public class MainActivity extends Activity {
         }
     }
 
-    interface YourApiService {
-        @GET("/images/{entryId}")
-        Call<ResponseBody> getImage(@Path("entryId") int entryId);
+    public class ImageData {
+        private int entryId;
+        private String imageUrl;
+
+        // Konstruktor
+        public ImageData(int entryId, String imageUrl) {
+            this.entryId = entryId;
+            this.imageUrl = imageUrl;
+        }
+
+        // Getter und Setter
+        public int getEntryId() {
+            return entryId;
+        }
+
+        public void setEntryId(int entryId) {
+            this.entryId = entryId;
+        }
+
+        public String getImageUrl() {
+            return imageUrl;
+        }
+
+        public void setImageUrl(String imageUrl) {
+            this.imageUrl = imageUrl;
+        }
     }
 
-    private void fetchAndDisplayImage(int entryId) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8000/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
+
+    interface YourApiService {
+        @GET("/all_images/")
+        Call<List<ImageData>> getAllImages();
+    }
+
+    private void fetchAndDisplayAllImages() {
+        Retrofit retrofit = getClient();
         YourApiService service = retrofit.create(YourApiService.class);
-        Call<ResponseBody> call = service.getImage(entryId);
+        Call<List<ImageData>> call = service.getAllImages();
 
-        call.enqueue(new Callback<ResponseBody>() {
+        call.enqueue(new Callback<List<ImageData>>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<List<ImageData>> call, Response<List<ImageData>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                    runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+                    List<ImageData> images = response.body();
+                    RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
+                    ImagesAdapter adapter = new ImagesAdapter(MainActivity.this, images);
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<List<ImageData>> call, Throwable t) {
+                // Fehlerbehandlung
             }
         });
     }
+
+
 }
