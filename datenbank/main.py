@@ -31,6 +31,23 @@ async def upload_image(user_id: int, file: UploadFile = File(...), db: Session =
     db.refresh(pin_entry)
     return {"filename": file.filename, "entry_id": pin_entry.entry_id}
 
+@app.delete("/rm_image/{entry_id}")
+async def delete_image(entry_id: int, db: Session = Depends(get_db)):
+    result = crud.delete_pinentry(db, entry_id)
+    if result:
+        return {"message": f"Eintrag mit ID {entry_id} erfolgreich gelöscht."}
+    else:
+        raise HTTPException(status_code=404, detail=f"Eintrag mit ID {entry_id} nicht gefunden.")
+    
+@app.delete("/rm_all_images/")
+async def delete_all_images(db: Session = Depends(get_db)):
+    result = crud.delete_all_pinentries(db)
+    if result:
+        return {"message": "Alle Einträge erfolgreich gelöscht."}
+    else:
+        raise HTTPException(status_code=500, detail="Fehler beim Löschen der Einträge.")
+
+
 @app.get("/images/{image_id}")
 async def get_image(image_id: int, db: Session = Depends(get_db)):
     image_entry = db.query(models.PinEntry).filter(models.PinEntry.entry_id == image_id).first()

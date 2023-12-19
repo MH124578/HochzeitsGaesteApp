@@ -23,6 +23,22 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+def delete_pinentry(db: Session, entry_id: int):
+    pinentry = db.query(models.PinEntry).filter(models.PinEntry.entry_id == entry_id).first()
+    if pinentry:
+        db.delete(pinentry)
+        db.commit()
+        return True
+    else:
+        return False
+    
+def delete_all_pinentries(db: Session):
+    try:
+        db.query(models.PinEntry).delete()
+        db.commit()
+        return True
+    except:
+        return False
 
 def get_pinentry(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.PinEntry).offset(skip).limit(limit).all()
