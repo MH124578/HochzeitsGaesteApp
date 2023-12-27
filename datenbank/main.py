@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Depends
+from fastapi import FastAPI, File, UploadFile, Depends, Form
 from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from fastapi.responses import Response
@@ -23,13 +23,14 @@ async def root():
 
 # Endpunkt zum Hochladen von Bildern
 @app.post("/upload_image/{user_id}")
-async def upload_image(user_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_image(user_id: int, file: UploadFile = File(...), text: str = Form(...), db: Session = Depends(get_db)):
     image_data = await file.read()
-    pin_entry = models.PinEntry(user_id=user_id, image=image_data, text="Optional Text")
+    pin_entry = models.PinEntry(user_id=user_id, image=image_data, text=text)  # Text hinzufügen
     db.add(pin_entry)
     db.commit()
     db.refresh(pin_entry)
-    return {"filename": file.filename, "entry_id": pin_entry.entry_id}
+    return {"filename": file.filename, "entry_id": pin_entry.entry_id, "text": pin_entry.text}
+
 
 @app.delete("/rm_image/{entry_id}")
 async def delete_image(entry_id: int, db: Session = Depends(get_db)):
@@ -62,7 +63,8 @@ async def get_image(image_id: int, db: Session = Depends(get_db)):
 @app.get("/all_images/")
 async def get_all_images(db: Session = Depends(get_db)):
     images = crud.get_all_pinentries(db)
-    return [{"entryId": image.entry_id, "imageUrl": f"http://10.0.2.2:8000/images/{image.entry_id}"} for image in images]
+    return [{"entryId": image.entry_id, "imageUrl": f"http://10.0.2.2:8000/images/{image.entry_id}", "text": image.text} for image in images]
+
 
 
 

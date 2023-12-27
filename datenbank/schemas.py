@@ -21,6 +21,7 @@ class PinEntryCreate(PinEntryBase):
 class PinEntry(PinEntryBase):
     entry_id: int
     user_id: int
+    text: str
 
     class Config:
         orm_mode = True
