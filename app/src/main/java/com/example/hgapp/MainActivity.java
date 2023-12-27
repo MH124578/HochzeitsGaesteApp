@@ -53,13 +53,14 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fetchAndDisplayAllImages();
         uploadButton = findViewById(R.id.uploadButton);
 
         imageView = findViewById(R.id.imageView);
         editText = findViewById(R.id.editText);
         uploadButton = findViewById(R.id.uploadButton);
         btnSelectImage = findViewById(R.id.btnSelectImage);
+
+        fetchAndDisplayAllImages();
 
         btnSelectImage.setOnClickListener(v -> openImageChooser());
 
@@ -108,10 +109,11 @@ public class MainActivity extends Activity {
             if (inputStream != null) {
                 RequestBody requestFile = new StreamRequestBody(inputStream, MediaType.parse("multipart/form-data"));
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
+                RequestBody textPart = RequestBody.create(MediaType.parse("multipart/form-data"), text);
 
                 ApiService service = getClient().create(ApiService.class);
                 int userId = 1;  // Stellen Sie sicher, dass Sie die richtige Benutzer-ID verwenden.
-                Call<ResponseBody> call = service.uploadImage(userId, body);
+                Call<ResponseBody> call = service.uploadImage(userId, body, textPart);
 
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
@@ -154,7 +156,7 @@ public class MainActivity extends Activity {
     public interface ApiService {
         @Multipart
         @POST("/upload_image/{user_id}")
-        Call<ResponseBody> uploadImage(@Path("user_id") int userId, @Part MultipartBody.Part file);
+        Call<ResponseBody> uploadImage(@Path("user_id") int userId, @Part MultipartBody.Part file, @Part("text") RequestBody text);
     }
 
     public class StreamRequestBody extends RequestBody {
@@ -190,11 +192,13 @@ public class MainActivity extends Activity {
     public class ImageData {
         private int entryId;
         private String imageUrl;
+        private String text;
 
         // Konstruktor
-        public ImageData(int entryId, String imageUrl) {
+        public ImageData(int entryId, String imageUrl, String text) {
             this.entryId = entryId;
             this.imageUrl = imageUrl;
+            this.text = text;
         }
 
         // Getter und Setter
@@ -213,6 +217,10 @@ public class MainActivity extends Activity {
         public void setImageUrl(String imageUrl) {
             this.imageUrl = imageUrl;
         }
+
+        public String getText() { return text; }
+
+        public void setText(String text) { this.text = text; }
     }
 
 
@@ -232,6 +240,10 @@ public class MainActivity extends Activity {
             public void onResponse(Call<List<ImageData>> call, Response<List<ImageData>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<ImageData> images = response.body();
+                    for (ImageData image : images) {
+                        String cacheBustingUrl = image.getImageUrl() + "?nocache=" + System.currentTimeMillis();
+                        image.setImageUrl(cacheBustingUrl);
+                    }
                     RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
                     ImagesAdapter adapter = new ImagesAdapter(MainActivity.this, images);
                     recyclerView.setAdapter(adapter);
