@@ -1,11 +1,12 @@
-from fastapi import FastAPI, File, UploadFile, Depends, Form
+from fastapi import FastAPI, File, UploadFile, Depends, Form , HTTPException
 from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from fastapi.responses import Response
-from fastapi import HTTPException
-from .database import SessionLocal
+from .database import SessionLocal, engine
 from fastapi.responses import StreamingResponse
 from io import BytesIO
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -66,6 +67,19 @@ async def get_all_images(db: Session = Depends(get_db)):
     return [{"entryId": image.entry_id, "imageUrl": f"http://10.0.2.2:8000/images/{image.entry_id}", "text": image.text} for image in images]
 
 
+@app.post("/users/", response_model=schemas.User)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return crud.create_user(db=db, user=user)
 
+@app.put("/edit_image/{entry_id}")
+async def edit_image(entry_id: int, text: str = Form(...), db: Session = Depends(get_db)):
+    updated_entry = crud.update_pinentry_text(db, entry_id, text)
+    if updated_entry is None:
+        raise HTTPException(status_code=404, detail="Eintrag nicht gefunden")
+    
+    return {"message": "Text erfolgreich aktualisiert."}
 
 

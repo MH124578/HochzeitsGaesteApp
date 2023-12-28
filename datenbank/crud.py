@@ -55,5 +55,14 @@ def create_pinentry(db: Session, pinentry: schemas.PinEntryCreate, user_id: int)
 def get_all_pinentries(db: Session):
     return db.query(models.PinEntry).all()
 
-
-
+def update_pinentry_text(db: Session, entry_id: int, new_text: str):
+    pinentry = get_pinentry_by_id(db, entry_id)
+    if pinentry:
+        pinentry.text = new_text
+        db.commit()
+        return pinentry
+    else:
+        return None
+    
+def get_pinentry_by_id(db: Session, entry_id: int):
+    return db.query(models.PinEntry).filter(models.PinEntry.entry_id == entry_id).first()
