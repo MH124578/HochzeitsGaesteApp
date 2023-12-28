@@ -1,7 +1,9 @@
 package com.example.hgapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,6 +17,7 @@ import android.widget.ImageButton;
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import android.text.InputType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +40,11 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
+import retrofit2.http.DELETE;
+import retrofit2.http.PUT;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+
 
 public class MainActivity extends Activity {
 
@@ -157,6 +165,12 @@ public class MainActivity extends Activity {
         @Multipart
         @POST("/upload_image/{user_id}")
         Call<ResponseBody> uploadImage(@Path("user_id") int userId, @Part MultipartBody.Part file, @Part("text") RequestBody text);
+        @DELETE("/rm_image/{entry_id}")
+        Call<ResponseBody> deleteImage(@Path("entry_id") int entryId);
+
+        @FormUrlEncoded
+        @PUT("/edit_image/{entry_id}")
+        Call<ResponseBody> editImageText(@Path("entry_id") int entryId, @Field("text") String newText);
     }
 
     public class StreamRequestBody extends RequestBody {
@@ -258,5 +272,67 @@ public class MainActivity extends Activity {
         });
     }
 
+    public void deleteImage(int entryId) {
+        ApiService service = getClient().create(ApiService.class);
+        Call<ResponseBody> call = service.deleteImage(entryId);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    fetchAndDisplayAllImages();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // Behandeln Sie den Fehlerfall
+            }
+        });
+    }
+
+    // Methode zum Bearbeiten des Textes eines Bildes
+    public void editImageText(int entryId, String newText) {
+        ApiService service = getClient().create(ApiService.class);
+        Call<ResponseBody> call = service.editImageText(entryId, newText);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    fetchAndDisplayAllImages();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // Behandeln Sie den Fehlerfall
+            }
+        });
+    }
+    public void showEditDialog(final int entryId, String currentText) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Text bearbeiten");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(currentText);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                editImageText(entryId, input.getText().toString());
+            }
+        });
+        builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
 
 }
