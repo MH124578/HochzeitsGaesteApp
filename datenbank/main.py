@@ -22,16 +22,14 @@ def get_db():
 async def root():
     return {"message": "Hello World"}
 
-# Endpunkt zum Hochladen von Bildern
 @app.post("/upload_image/{user_id}")
-async def upload_image(user_id: int, file: UploadFile = File(...), text: str = Form(...), db: Session = Depends(get_db)):
+async def upload_image(user_id: int, file: UploadFile = File(...), text: str = Form(None), db: Session = Depends(get_db)):
     image_data = await file.read()
     pin_entry = models.PinEntry(user_id=user_id, image=image_data, text=text)  # Text hinzufügen
     db.add(pin_entry)
     db.commit()
     db.refresh(pin_entry)
     return {"filename": file.filename, "entry_id": pin_entry.entry_id, "text": pin_entry.text}
-
 
 @app.delete("/rm_image/{entry_id}")
 async def delete_image(entry_id: int, db: Session = Depends(get_db)):
