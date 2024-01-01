@@ -26,12 +26,8 @@ def add_user_email(db: Session, user: schemas.UserBase):
 def fill_out_email_user(db: Session, user: schemas.UserCreate):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
 
-    if db_user:
-        db_user.name = user.name
-        db_user.password = user.password + "notreallyhashed"
-    else:
-        print("User not found with the provided email.")
-        return None
+    db_user.name = user.name
+    db_user.password = user.password + "notreallyhashed"
 
     db.commit()
     db.refresh(db_user)
