@@ -17,6 +17,24 @@ def get_db():
     finally:
         db.close()
 
+@app.post("/add_user_email/", response_model=schemas.User)
+def add_user_email(user: schemas.UserBase, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db=db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    return crud.add_user_email(db=db, user=user)
+
+
+@app.post("/fill_out_email_user", response_model=schemas.User)
+def fill_out_email_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db=db, email=user.email)
+
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="No user with the provided email")
+
+    return crud.fill_out_email_user(db=db, user=user)
+
 
 @app.post("/users/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
