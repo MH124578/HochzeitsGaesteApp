@@ -11,8 +11,6 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.widget.ImageButton;
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,16 +32,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Multipart;
-import retrofit2.http.POST;
-import retrofit2.http.Part;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
-import retrofit2.http.DELETE;
-import retrofit2.http.PUT;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
+import com.example.hgapp.ImageData;
+
 
 
 public class MainActivity extends Activity {
@@ -55,6 +46,7 @@ public class MainActivity extends Activity {
     private Uri imageUri;
     private ImageButton btnSelectImage;
     private Button uploadButton;
+    private NetworkService networkService;
 
 
     @Override
@@ -67,6 +59,7 @@ public class MainActivity extends Activity {
         editText = findViewById(R.id.editText);
         uploadButton = findViewById(R.id.uploadButton);
         btnSelectImage = findViewById(R.id.btnSelectImage);
+        networkService = new NetworkService();
 
         fetchAndDisplayAllImages();
 
@@ -117,11 +110,12 @@ public class MainActivity extends Activity {
             if (inputStream != null) {
                 RequestBody requestFile = new StreamRequestBody(inputStream, MediaType.parse("multipart/form-data"));
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
-                RequestBody textPart = RequestBody.create(MediaType.parse("multipart/form-data"), text);
+                RequestBody textPart = text.isEmpty()
+                        ? RequestBody.create(MediaType.parse("multipart/form-data"), "")
+                        : RequestBody.create(MediaType.parse("multipart/form-data"), text);
 
-                ApiService service = getClient().create(ApiService.class);
                 int userId = 1;  // Stellen Sie sicher, dass Sie die richtige Benutzer-ID verwenden.
-                Call<ResponseBody> call = service.uploadImage(userId, body, textPart);
+                Call<ResponseBody> call = networkService.getApiService().uploadImage(userId, body, textPart);
 
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
@@ -154,24 +148,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private Retrofit getClient() {
-        return new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8000/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-    }
-
-    public interface ApiService {
-        @Multipart
-        @POST("/upload_image/{user_id}")
-        Call<ResponseBody> uploadImage(@Path("user_id") int userId, @Part MultipartBody.Part file, @Part("text") RequestBody text);
-        @DELETE("/rm_image/{entry_id}")
-        Call<ResponseBody> deleteImage(@Path("entry_id") int entryId);
-
-        @FormUrlEncoded
-        @PUT("/edit_image/{entry_id}")
-        Call<ResponseBody> editImageText(@Path("entry_id") int entryId, @Field("text") String newText);
-    }
 
     public class StreamRequestBody extends RequestBody {
         private final InputStream inputStream;
@@ -203,50 +179,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    public class ImageData {
-        private int entryId;
-        private String imageUrl;
-        private String text;
-
-        // Konstruktor
-        public ImageData(int entryId, String imageUrl, String text) {
-            this.entryId = entryId;
-            this.imageUrl = imageUrl;
-            this.text = text;
-        }
-
-        // Getter und Setter
-        public int getEntryId() {
-            return entryId;
-        }
-
-        public void setEntryId(int entryId) {
-            this.entryId = entryId;
-        }
-
-        public String getImageUrl() {
-            return imageUrl;
-        }
-
-        public void setImageUrl(String imageUrl) {
-            this.imageUrl = imageUrl;
-        }
-
-        public String getText() { return text; }
-
-        public void setText(String text) { this.text = text; }
-    }
-
-
-
-    interface YourApiService {
-        @GET("/all_images/")
-        Call<List<ImageData>> getAllImages();
-    }
-
     private void fetchAndDisplayAllImages() {
-        Retrofit retrofit = getClient();
-        YourApiService service = retrofit.create(YourApiService.class);
+        NetworkService.ApiService service = networkService.getApiService();
         Call<List<ImageData>> call = service.getAllImages();
 
         call.enqueue(new Callback<List<ImageData>>() {
@@ -273,8 +207,7 @@ public class MainActivity extends Activity {
     }
 
     public void deleteImage(int entryId) {
-        ApiService service = getClient().create(ApiService.class);
-        Call<ResponseBody> call = service.deleteImage(entryId);
+        Call<ResponseBody> call = networkService.getApiService().deleteImage(entryId);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -285,15 +218,13 @@ public class MainActivity extends Activity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // Behandeln Sie den Fehlerfall
+                // Fehlerbehandlung
             }
         });
     }
 
-    // Methode zum Bearbeiten des Textes eines Bildes
     public void editImageText(int entryId, String newText) {
-        ApiService service = getClient().create(ApiService.class);
-        Call<ResponseBody> call = service.editImageText(entryId, newText);
+        Call<ResponseBody> call = networkService.getApiService().editImageText(entryId, newText);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -304,7 +235,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // Behandeln Sie den Fehlerfall
+                // Fehlerbehandlung
             }
         });
     }
