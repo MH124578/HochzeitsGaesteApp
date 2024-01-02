@@ -31,10 +31,6 @@ import okio.BufferedSink;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.http.GET;
-import com.example.hgapp.ImageData;
-
 
 
 public class MainActivity extends Activity {
@@ -53,19 +49,15 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        uploadButton = findViewById(R.id.uploadButton);
 
+        uploadButton = findViewById(R.id.uploadButton);
         imageView = findViewById(R.id.imageView);
         editText = findViewById(R.id.editText);
-        uploadButton = findViewById(R.id.uploadButton);
         btnSelectImage = findViewById(R.id.btnSelectImage);
-        networkService = new NetworkService();
 
-        fetchAndDisplayAllImages();
+        initializeNetworkService();
 
         btnSelectImage.setOnClickListener(v -> openImageChooser());
-
-        // Event-Listener für den Upload-Button
         uploadButton.setOnClickListener(v -> {
             Log.d("UploadActivity", "Upload button clicked");
             if (imageUri != null) {
@@ -77,8 +69,12 @@ public class MainActivity extends Activity {
             editText.setVisibility(View.GONE);
             uploadButton.setVisibility(View.GONE);
             btnSelectImage.setVisibility(View.VISIBLE);
-
         });
+    }
+
+    private void initializeNetworkService() {
+        networkService = new NetworkService();
+        fetchAndDisplayAllImages();
     }
 
     private void openImageChooser() {
@@ -172,38 +168,40 @@ public class MainActivity extends Activity {
                     sink.write(buffer, 0, read);
                 }
             } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
+                inputStream.close();
             }
         }
     }
 
+
+
+
     private void fetchAndDisplayAllImages() {
-        NetworkService.ApiService service = networkService.getApiService();
-        Call<List<ImageData>> call = service.getAllImages();
+        new Thread(() -> {
+            NetworkService.ApiService service = networkService.getApiService();
+            Call<List<ImageData>> call = service.getAllImages();
 
-        call.enqueue(new Callback<List<ImageData>>() {
-            @Override
-            public void onResponse(Call<List<ImageData>> call, Response<List<ImageData>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<ImageData> images = response.body();
-                    for (ImageData image : images) {
-                        String cacheBustingUrl = image.getImageUrl() + "?nocache=" + System.currentTimeMillis();
-                        image.setImageUrl(cacheBustingUrl);
+            call.enqueue(new Callback<List<ImageData>>() {
+                @Override
+                public void onResponse(Call<List<ImageData>> call, Response<List<ImageData>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        runOnUiThread(() -> updateUIWithImages(response.body()));
                     }
-                    RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
-                    ImagesAdapter adapter = new ImagesAdapter(MainActivity.this, images);
-                    recyclerView.setAdapter(adapter);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                 }
-            }
 
-            @Override
-            public void onFailure(Call<List<ImageData>> call, Throwable t) {
-                // Fehlerbehandlung
-            }
-        });
+                @Override
+                public void onFailure(Call<List<ImageData>> call, Throwable t) {
+                    // Fehlerbehandlung
+                }
+            });
+        }).start();
+    }
+
+    private void updateUIWithImages(List<ImageData> images) {
+        RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
+        ImagesAdapter adapter = new ImagesAdapter(MainActivity.this, images);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
     }
 
     public void deleteImage(int entryId) {

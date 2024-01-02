@@ -9,7 +9,7 @@ import android.app.AlertDialog;
 import android.widget.TextView;
 import android.widget.PopupMenu;
 import com.bumptech.glide.Glide;
-
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder> {
@@ -32,6 +32,8 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         ImageData imageData = images.get(position);
         Glide.with(activity)
                 .load(imageData.getImageUrl())
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(holder.imageView);
         holder.textView.setText(imageData.getText());
 
