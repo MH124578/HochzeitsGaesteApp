@@ -4,6 +4,7 @@ public class ImageData {
     private int entryId;
     private String imageUrl;
     private String text;
+    private boolean isSelected;
 
     // Konstruktor
     public ImageData(int entryId, String imageUrl, String text) {
@@ -35,5 +36,13 @@ public class ImageData {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 }

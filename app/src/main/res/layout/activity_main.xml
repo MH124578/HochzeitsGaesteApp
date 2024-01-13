@@ -32,6 +32,14 @@
         android:layout_below="@+id/editText"
         android:text="Hochladen" />
 
+    <Button
+        android:id="@+id/downloadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Download"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imagesRecyclerView"
         android:layout_width="match_parent"

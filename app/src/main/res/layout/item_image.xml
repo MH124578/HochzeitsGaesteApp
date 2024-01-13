@@ -18,6 +18,14 @@
         android:padding="8dp"
         android:textSize="16sp"/>
 
+    <CheckBox
+        android:id="@+id/checkboxDownload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_below="@id/imageViewItem" />
+
     <ImageView
         android:id="@+id/menuImageView"
         android:layout_width="wrap_content"

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
@@ -19,7 +20,14 @@ import android.text.InputType;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
+import java.util.Date;
+import java.util.Locale;
+import java.text.SimpleDateFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,6 +51,8 @@ public class MainActivity extends Activity {
     private ImageButton btnSelectImage;
     private Button uploadButton;
     private NetworkService networkService;
+    private ImagesAdapter imagesAdapter;
+    private RecyclerView recyclerView;
 
 
     @Override
@@ -54,6 +64,7 @@ public class MainActivity extends Activity {
         imageView = findViewById(R.id.imageView);
         editText = findViewById(R.id.editText);
         btnSelectImage = findViewById(R.id.btnSelectImage);
+        recyclerView = findViewById(R.id.imagesRecyclerView);
 
         initializeNetworkService();
 
@@ -70,11 +81,56 @@ public class MainActivity extends Activity {
             uploadButton.setVisibility(View.GONE);
             btnSelectImage.setVisibility(View.VISIBLE);
         });
+
+        Button downloadButton = findViewById(R.id.downloadButton);
+        downloadButton.setOnClickListener(v -> downloadSelectedImages());
     }
 
     private void initializeNetworkService() {
         networkService = new NetworkService();
         fetchAndDisplayAllImages();
+    }
+
+    private void downloadSelectedImages() {
+        ImagesAdapter currentAdapter = (ImagesAdapter) recyclerView.getAdapter();
+        if (currentAdapter != null) {
+            List<ImageData> images = currentAdapter.getImages();
+            for (ImageData imageData : images) {
+                if (imageData.isSelected()) {
+                    downloadImage(imageData.getImageUrl(), imageData.getEntryId());
+                }
+            }
+        }
+    }
+
+    private void downloadImage(String imageUrl, int imageId) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(imageUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+                String imageFileName = "JPEG_" + timeStamp + "_" + imageId + ".jpg";
+
+                File storagePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File imageFile = new File(storagePath, imageFileName);
+
+                FileOutputStream outputStream = new FileOutputStream(imageFile);
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                outputStream.close();
+                input.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Fehlerbehandlung hier
+            }
+        }).start();
     }
 
     private void openImageChooser() {

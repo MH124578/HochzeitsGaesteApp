@@ -3,6 +3,7 @@ package com.example.hgapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 import android.app.AlertDialog;
@@ -21,6 +22,10 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         this.images = images;
     }
 
+    public List<ImageData> getImages() {
+        return images;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, parent, false);
@@ -36,8 +41,11 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(holder.imageView);
         holder.textView.setText(imageData.getText());
-
         holder.menuImageView.setOnClickListener(v -> showPopupMenu(holder.menuImageView, imageData));
+        holder.checkBox.setChecked(imageData.isSelected());
+        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            imageData.setSelected(isChecked);
+        });
     }
 
     private void showPopupMenu(View view, ImageData imageData) {
@@ -74,12 +82,14 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         public ImageView imageView;
         public TextView textView;
         public ImageView menuImageView;
+        public CheckBox checkBox;
 
         public ViewHolder(View view) {
             super(view);
             imageView = view.findViewById(R.id.imageViewItem);
             textView = view.findViewById(R.id.textViewItem);
             menuImageView = view.findViewById(R.id.menuImageView);
+            checkBox = view.findViewById(R.id.checkboxDownload);
         }
     }
 }
