@@ -1,0 +1,15 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background: Fading Outline -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="@color/light_golden_brown"
+                android:endColor="@color/golden_brown"
+                android:type="linear"
+                android:angle="0" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+
+</layer-list>

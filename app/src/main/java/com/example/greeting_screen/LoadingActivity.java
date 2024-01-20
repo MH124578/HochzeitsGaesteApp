@@ -35,14 +35,11 @@ public class LoadingActivity extends AppCompatActivity {
         loadingAnimation.playTogether(symbols1Animator, symbols2Animator);
         loadingAnimation.setInterpolator(new android.view.animation.LinearInterpolator());
 
-// Add a listener to handle repositioning when the animations complete
         loadingAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                // Reposition loading_symbols1 to the right of loading_symbols2
                 loading_symbols1.setTranslationX(screenWidth);
-                // Reposition loading_symbols2 to the left of loading_symbols1
                 loading_symbols2.setTranslationX(0f);
             }
         });

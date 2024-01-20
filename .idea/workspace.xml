@@ -1,25 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AndroidLayouts">
-    <shared>
-      <config>
-        <device id="pixel" />
-        <device id="pixel_6" />
-        <device id="pixel_5" />
-        <device id="pixel_7" />
-        <device id="pixel_3_xl" />
-        <device id="_device_class_desktop" />
-        <device id="pixel_4_xl" />
-        <device id="pixel_xl" />
-        <device id="wearos_rect" />
-      </config>
-    </shared>
-  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11c0c952-d581-4950-a90e-df3af24a4afb" name="Changes" comment="" />
+    <list default="true" id="2f86c3f9-1707-40c2-8fdc-18a7a4af47d1" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,9 +19,6 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
-        <task path="$PROJECT_DIR$/app">
-          <activation />
-        </task>
         <projects_view>
           <tree_state>
             <expand>
@@ -69,56 +51,20 @@
       </state>
     </system>
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="valueResourceFile" />
-        <option value="resourceFile" />
-        <option value="layoutResourceFile" />
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
-  <component name="MarkdownSettingsMigration">
-    <option name="stateVersion" value="1" />
-  </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
-  <component name="ProjectId" id="2Xdopnk9zCYaUt8HBxDD2HfrSaQ" />
+  <component name="ProjectId" id="2bDqMYHDtj8OREqOv0SIvSz2Emp" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ResourceManagerPrefKey.ModuleName&quot;: &quot;Greeting_Screen.app.main&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_directory_selection&quot;: &quot;G:/Schule/AndroidStudioProjects/Greeting_Screen/app/src/main/java&quot;,
-    &quot;last_opened_file_path&quot;: &quot;G:/Schule/AndroidStudioProjects/Greeting_Screen/app/src/main/res/drawable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "G:/Schule/AndroidStudioProjects/Greeting_Screen"
   }
-}</component>
-  <component name="RecentsManager">
-    <key name="android.template.1135613049">
-      <recent name="com.example.greeting_screen" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="G:\Schule\AndroidStudioProjects\Greeting_Screen\app\src\main\res\drawable" />
-      <recent name="G:\Schule\AndroidStudioProjects\Greeting_Screen\app\src\main\res\font" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="G:\Schule\AndroidStudioProjects\Greeting_Screen\app\src\main\res\mipmap-hdpi" />
-    </key>
-    <key name="android.template.-1814576832">
-      <recent name="com.example.greeting_screen" />
-    </key>
-    <key name="android.template.-154587289">
-      <recent name="com.example.greeting_screen" />
-    </key>
-  </component>
+}]]></component>
   <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App">
       <module name="Greeting_Screen.app.main" />
@@ -190,11 +136,11 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="11c0c952-d581-4950-a90e-df3af24a4afb" name="Changes" comment="" />
-      <created>1698968507063</created>
+      <changelist id="2f86c3f9-1707-40c2-8fdc-18a7a4af47d1" name="Changes" comment="" />
+      <created>1705759955445</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1698968507063</updated>
+      <updated>1705759955445</updated>
     </task>
     <servers />
   </component>

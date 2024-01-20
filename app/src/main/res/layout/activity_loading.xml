@@ -15,8 +15,8 @@
         android:contentDescription="Symbols1"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/geometric_pattern_long"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteX="77dp"
+        tools:layout_editor_absoluteY="-193dp" />
 
     <ImageView
         android:id="@+id/loading_symbols2"
@@ -26,7 +26,7 @@
         android:contentDescription="Symbols2"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/geometric_pattern_long"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteX="98dp"
+        tools:layout_editor_absoluteY="-237dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
