@@ -12,6 +12,7 @@ import android.widget.PopupMenu;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
+import java.util.Random;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder> {
     private final List<ImageData> images;
@@ -40,6 +41,9 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(holder.imageView);
+        Random random = new Random();
+        float rotationAngle = random.nextFloat() * 10 - 5; // Zufälliger Winkel zwischen -5 und +5 Grad
+        holder.imageView.setRotation(rotationAngle);
         holder.textView.setText(imageData.getText());
         holder.menuImageView.setOnClickListener(v -> showPopupMenu(holder.menuImageView, imageData));
         holder.checkBox.setChecked(imageData.isSelected());
