@@ -1,4 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, LargeBinary
+from sqlalchemy import Column, ForeignKey, Integer, String, LargeBinary, ForeignKey
+from sqlalchemy.orm import relationship
 from .database import Base
 
 class User(Base):
@@ -14,3 +15,13 @@ class PinEntry(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     image = Column(LargeBinary)  # Speichern Sie Bilder als Binärdaten
     text = Column(String)
+    category_id = Column(Integer, ForeignKey('categories.id'))
+
+    category = relationship("Category", back_populates="pins")
+
+class Category(Base):
+    __tablename__ = 'categories'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    
+    pins = relationship("PinEntry", back_populates="category")
