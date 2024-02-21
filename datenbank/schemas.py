@@ -1,9 +1,22 @@
 from datetime import time, date
 from typing import Union
 import re
-
-
 from pydantic import BaseModel, validator
+
+
+class CategoryBase(BaseModel):
+    name: str
+
+
+class CategoryCreate(CategoryBase):
+    pass
+
+
+class Category(CategoryBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 
 class UserBase(BaseModel):
@@ -47,17 +60,19 @@ class HomeInformationEntry(HomeInformationEntryCreate):
 
 
 class PinEntryBase(BaseModel):
-    image: str
     text: Union[str, None] = None
+    category_id: int
+    image: str  # Changed from bytes to str
 
 
 class PinEntryCreate(PinEntryBase):
-    image: bytes 
+    image: bytes  # Changed from bytes to str
 
 
 class PinEntry(PinEntryBase):
     entry_id: int
     user_id: int
+    category: 'Category'
 
     class Config:
         orm_mode = True
@@ -66,49 +81,63 @@ class PinEntry(PinEntryBase):
 class RelationshipBase(BaseModel):
     relationship_type: str
 
+
 class RelationshipCreate(RelationshipBase):
     guest_id_1: int
     guest_id_2: int
+
 
 class Relationship(RelationshipBase):
     id: int
     guest_id_1: int
     guest_id_2: int
 
+
 class RoleBase(BaseModel):
     role_name: str
+
 
 class RoleCreate(RoleBase):
     pass
 
+
 class Role(RoleBase):
     id: int
+
 
 class GuestRoleBase(BaseModel):
     user_id: int
     role_id: int
 
+
 class GuestRoleCreate(GuestRoleBase):
     pass
+
 
 class GuestRole(GuestRoleBase):
     id: int
 
+
 class FamilyBase(BaseModel):
     family_name: str
+
 
 class FamilyCreate(FamilyBase):
     pass
 
+
 class Family(FamilyBase):
     id: int
+
 
 class FamilyMemberBase(BaseModel):
     user_id: int
     family_id: int
 
+
 class FamilyMember(FamilyMemberBase):
     id: int
+
 
 class FamilyMemberCreate(FamilyMemberBase):
     pass

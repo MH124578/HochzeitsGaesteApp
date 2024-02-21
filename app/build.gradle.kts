@@ -38,6 +38,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
     implementation("com.github.bumptech.glide:glide:4.11.0")
+    implementation("androidx.annotation:annotation:1.2.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.11.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
