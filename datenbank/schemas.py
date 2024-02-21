@@ -1,4 +1,3 @@
-from datetime import time, date
 from typing import Union
 import re
 from pydantic import BaseModel, validator
@@ -62,11 +61,11 @@ class HomeInformationEntry(HomeInformationEntryCreate):
 class PinEntryBase(BaseModel):
     text: Union[str, None] = None
     category_id: int
-    image: str  # Changed from bytes to str
+    image: bytes
 
 
 class PinEntryCreate(PinEntryBase):
-    image: bytes  # Changed from bytes to str
+    image: bytes
 
 
 class PinEntry(PinEntryBase):
