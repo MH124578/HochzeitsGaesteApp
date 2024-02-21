@@ -22,7 +22,11 @@ public class NetworkService {
     public interface ApiService {
         @Multipart
         @POST("/upload_image/{user_id}")
-        Call<ResponseBody> uploadImage(@Path("user_id") int userId, @Part MultipartBody.Part file, @Part("text") RequestBody text);
+        Call<ResponseBody> uploadImage(
+                @Path("user_id") int userId,
+                @Part MultipartBody.Part file,
+                @Part("text") RequestBody text,
+                @Part("category_id") RequestBody categoryId);
 
         @DELETE("/rm_image/{entry_id}")
         Call<ResponseBody> deleteImage(@Path("entry_id") int entryId);
@@ -31,11 +35,18 @@ public class NetworkService {
         @PUT("/edit_image/{entry_id}")
         Call<ResponseBody> editImageText(@Path("entry_id") int entryId, @Field("text") String newText);
 
-        @GET("/all_images/")
-        Call<List<ImageData>> getAllImages();
+        @GET("/images_by_category/{category_id}")
+        Call<List<ImageData>> getImagesByCategory(@Path("category_id") int categoryId);
+
+        @FormUrlEncoded
+        @POST("/categories/")
+        Call<ResponseBody> createCategory(@Field("name") String categoryName);
+
+        @GET("/categories/")
+        Call<List<Category>> getCategories();
     }
 
-    private ApiService apiService;
+    private final ApiService apiService;
 
     public NetworkService() {
         Retrofit retrofit = new Retrofit.Builder()

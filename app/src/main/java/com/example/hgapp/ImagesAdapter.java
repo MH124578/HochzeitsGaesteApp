@@ -18,6 +18,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
     private final List<ImageData> images;
     private final MainActivity activity;
 
+
+    public void updateImages(List<ImageData> newImages) {
+        images.clear();
+        images.addAll(newImages);
+        notifyDataSetChanged();
+    }
     public ImagesAdapter(MainActivity activity, List<ImageData> images) {
         this.activity = activity;
         this.images = images;

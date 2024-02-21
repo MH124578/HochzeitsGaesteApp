@@ -9,10 +9,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Toast;
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,6 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Locale;
@@ -50,9 +56,16 @@ public class MainActivity extends Activity {
     private Uri imageUri;
     private ImageButton btnSelectImage;
     private Button uploadButton;
+    private Button downloadButton;
+    private Button createCategoryButton;
     private NetworkService networkService;
     private ImagesAdapter imagesAdapter;
     private RecyclerView recyclerView;
+    private Spinner categorySpinner;
+    private Spinner spinnerViewCategory;
+    private List<Category> categoriesList;
+    private ArrayAdapter<Category> categoriesAdapter;
+    private int selectedViewCategoryId = -1;
 
 
     @Override
@@ -65,21 +78,36 @@ public class MainActivity extends Activity {
         editText = findViewById(R.id.editText);
         btnSelectImage = findViewById(R.id.btnSelectImage);
         recyclerView = findViewById(R.id.imagesRecyclerView);
+        categorySpinner = findViewById(R.id.categorySpinner);
+        categoriesList = new ArrayList<>();
+        spinnerViewCategory = findViewById(R.id.spinnerViewCategory);
+
 
         initializeNetworkService();
+        fetchAndDisplayCategories();
 
         btnSelectImage.setOnClickListener(v -> openImageChooser());
         uploadButton.setOnClickListener(v -> {
-            Log.d("UploadActivity", "Upload button clicked");
             if (imageUri != null) {
-                uploadImageToServer(imageUri, editText.getText().toString());
-            } else {
-                Log.d("UploadActivity", "Kein Bild ausgewählt");
+                Category selectedCategory = (Category) categorySpinner.getSelectedItem();
+                if (selectedCategory != null) {
+                    uploadImageToServer(imageUri, editText.getText().toString(), selectedCategory.getId());
+                } else {
+                    Toast.makeText(MainActivity.this, "Bitte wählen Sie eine Kategorie aus.", Toast.LENGTH_SHORT).show();
+                }
             }
             imageView.setVisibility(View.VISIBLE);
             editText.setVisibility(View.GONE);
             uploadButton.setVisibility(View.GONE);
             btnSelectImage.setVisibility(View.VISIBLE);
+        });
+
+        Button createCategoryButton = findViewById(R.id.createCategoryButton);
+        createCategoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCreateCategoryDialog();
+            }
         });
 
         Button downloadButton = findViewById(R.id.downloadButton);
@@ -88,8 +116,8 @@ public class MainActivity extends Activity {
 
     private void initializeNetworkService() {
         networkService = new NetworkService();
-        fetchAndDisplayAllImages();
     }
+
 
     private void downloadSelectedImages() {
         ImagesAdapter currentAdapter = (ImagesAdapter) recyclerView.getAdapter();
@@ -134,6 +162,14 @@ public class MainActivity extends Activity {
     }
 
     private void openImageChooser() {
+        downloadButton = findViewById(R.id.downloadButton);
+        createCategoryButton = findViewById(R.id.createCategoryButton);
+
+        downloadButton.setVisibility(View.GONE);
+        createCategoryButton.setVisibility(View.GONE);
+        spinnerViewCategory.setVisibility(View.GONE);
+        categorySpinner.setVisibility(View.VISIBLE);
+
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -147,14 +183,18 @@ public class MainActivity extends Activity {
             imageView.setVisibility(View.VISIBLE);
             editText.setVisibility(View.VISIBLE);
             uploadButton.setVisibility(View.VISIBLE);
+
             btnSelectImage.setVisibility(View.GONE);
 
             RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
             recyclerView.setVisibility(View.GONE);
+
         }
     }
 
-    private void uploadImageToServer(Uri imageUri, String text) {
+    private void uploadImageToServer(Uri imageUri, String text, int categoryId) {
+        Category selectedCategory = (Category) categorySpinner.getSelectedItem();
+        int selectedCategoryId = selectedCategory != null ? selectedCategory.getId() : -1;
         Log.d("UploadActivity", "Uploading image: " + imageUri.toString());
         InputStream inputStream;
         try {
@@ -165,9 +205,10 @@ public class MainActivity extends Activity {
                 RequestBody textPart = text.isEmpty()
                         ? RequestBody.create(MediaType.parse("multipart/form-data"), "")
                         : RequestBody.create(MediaType.parse("multipart/form-data"), text);
+                RequestBody categoryIdPart = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(selectedCategoryId));
 
                 int userId = 1;  // Stellen Sie sicher, dass Sie die richtige Benutzer-ID verwenden.
-                Call<ResponseBody> call = networkService.getApiService().uploadImage(userId, body, textPart);
+                Call<ResponseBody> call = networkService.getApiService().uploadImage(userId, body, textPart, categoryIdPart);
 
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
@@ -181,11 +222,16 @@ public class MainActivity extends Activity {
                                 Log.e("UploadActivity", "Fehler beim Parsen der Antwort", e);
                             }
                             imageView.setVisibility(View.GONE);
-
-                            RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
+                            downloadButton.setVisibility(View.VISIBLE);
+                            createCategoryButton.setVisibility(View.VISIBLE);
+                            spinnerViewCategory.setVisibility(View.VISIBLE);
+                            categorySpinner.setVisibility(View.GONE);
                             recyclerView.setVisibility(View.VISIBLE);
-
-                            fetchAndDisplayAllImages();
+                        }
+                        Category selectedCategory = (Category) spinnerViewCategory.getSelectedItem();
+                        if (selectedCategory != null) {
+                            int categoryId = selectedCategory.getId();
+                            fetchAndDisplayImagesByCategory(categoryId);
                         }
                     }
 
@@ -199,6 +245,7 @@ public class MainActivity extends Activity {
             Log.e("UploadActivity", "Fehler beim Öffnen des Bildstreams", e);
         }
     }
+
 
 
     public class StreamRequestBody extends RequestBody {
@@ -229,36 +276,19 @@ public class MainActivity extends Activity {
         }
     }
 
-
-
-
-    private void fetchAndDisplayAllImages() {
-        new Thread(() -> {
-            NetworkService.ApiService service = networkService.getApiService();
-            Call<List<ImageData>> call = service.getAllImages();
-
-            call.enqueue(new Callback<List<ImageData>>() {
-                @Override
-                public void onResponse(Call<List<ImageData>> call, Response<List<ImageData>> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        runOnUiThread(() -> updateUIWithImages(response.body()));
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<List<ImageData>> call, Throwable t) {
-                    // Fehlerbehandlung
-                }
-            });
-        }).start();
-    }
-
     private void updateUIWithImages(List<ImageData> images) {
-        RecyclerView recyclerView = findViewById(R.id.imagesRecyclerView);
-        ImagesAdapter adapter = new ImagesAdapter(MainActivity.this, images);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        if (recyclerView.getAdapter() == null) {
+            // Adapter und LayoutManager initialisieren, wenn noch nicht geschehen
+            imagesAdapter = new ImagesAdapter(MainActivity.this, images);
+            recyclerView.setAdapter(imagesAdapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        } else {
+            // Adapter bereits initialisiert, aktualisiere nur die Daten
+            imagesAdapter.updateImages(images);
+            imagesAdapter.notifyDataSetChanged();
+        }
     }
+
 
     public void deleteImage(int entryId) {
         Call<ResponseBody> call = networkService.getApiService().deleteImage(entryId);
@@ -266,7 +296,7 @@ public class MainActivity extends Activity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    fetchAndDisplayAllImages();
+                    fetchAndDisplayImagesByCategory(selectedViewCategoryId);
                 }
             }
 
@@ -283,7 +313,7 @@ public class MainActivity extends Activity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    fetchAndDisplayAllImages();
+                    fetchAndDisplayImagesByCategory(selectedViewCategoryId);
                 }
             }
 
@@ -318,6 +348,128 @@ public class MainActivity extends Activity {
         });
 
         builder.show();
+    }
+
+    private void showCreateCategoryDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Neue Kategorie erstellen");
+
+        final EditText input = new EditText(MainActivity.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        builder.setView(input); // Kommentar hinzufügen
+
+        builder.setPositiveButton("Erstellen", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String categoryName = input.getText().toString();
+                createCategory(categoryName);
+            }
+        });
+        builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.show();
+    }
+
+
+    private void createCategory(String categoryName) {
+        NetworkService.ApiService apiService = new NetworkService().getApiService();
+        Call<ResponseBody> call = apiService.createCategory(categoryName);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    // Kategorie erfolgreich erstellt
+                    Log.e("KategorieErstellung", "Fehler beim Erstellen der Kategorie: " + response.code() + ", " + response.message());
+                    Toast.makeText(MainActivity.this, "Kategorie erfolgreich erstellt.", Toast.LENGTH_SHORT).show();
+                    fetchAndDisplayCategories();
+                } else {
+                    // Fehlerbehandlung
+                    Toast.makeText(MainActivity.this, "Fehler beim Erstellen der Kategorie.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("KategorieErstellung", "Netzwerkfehler: " + t.getMessage());
+                Toast.makeText(MainActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void fetchAndDisplayCategories() {
+        Call<List<Category>> call = networkService.getApiService().getCategories();
+        call.enqueue(new Callback<List<Category>>() {
+            @Override
+            public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    categoriesList = response.body();
+                    // Update the UI on the main thread
+                    runOnUiThread(() -> {
+                        ArrayAdapter<Category> adapter = new ArrayAdapter<>(
+                                MainActivity.this,
+                                android.R.layout.simple_spinner_item,
+                                categoriesList
+                        );
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        categorySpinner.setAdapter(adapter);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerViewCategory.setAdapter(adapter);
+                        spinnerViewCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                Category selectedCategory = (Category) parent.getItemAtPosition(position);
+                                selectedViewCategoryId = selectedCategory.getId();
+                                fetchAndDisplayImagesByCategory(selectedViewCategoryId);
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+                                selectedViewCategoryId = -1;
+                            }
+                        });
+                    });
+                } else {
+                    Toast.makeText(MainActivity.this, "Fehler beim Abrufen der Kategorien.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Category>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void fetchAndDisplayImagesByCategory(int categoryId) {
+        Call<List<ImageData>> call = networkService.getApiService().getImagesByCategory(categoryId);
+        call.enqueue(new Callback<List<ImageData>>() {
+            @Override
+            public void onResponse(Call<List<ImageData>> call, Response<List<ImageData>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    List<ImageData> images = response.body();
+                    Log.d("MainActivity", "Anzahl der Bilder in Kategorie " + categoryId + ": " + images.size());
+                    updateUIWithImages(images);
+                } else {
+                    Log.e("MainActivity", "Keine Bilder in der Kategorie gefunden oder leere Antwort");
+                    Toast.makeText(MainActivity.this, "Keine Bilder in dieser Kategorie gefunden.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ImageData>> call, Throwable t) {
+                Log.e("MainActivity", "Fehler beim Abrufen der Bilder: " + t.getMessage(), t);
+                Toast.makeText(MainActivity.this, "Fehler beim Laden der Bilder: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }
