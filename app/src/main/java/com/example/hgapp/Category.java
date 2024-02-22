@@ -1,10 +1,8 @@
 package com.example.hgapp;
 
-import androidx.annotation.NonNull;
-
 public class Category {
-    private final int id;
-    private final String name;
+    private int id;
+    private String name;
 
     // Konstruktor, Getter und Setter
     public Category(int id, String name) {
@@ -16,9 +14,19 @@ public class Category {
         return id;
     }
 
-    @Override
-    @NonNull
-    public String toString() {
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    @Override
+    public String toString() {
+        return name; // Stelle sicher, dass 'name' der Name der Kategorie ist
     }
 }
