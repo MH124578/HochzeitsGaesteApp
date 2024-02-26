@@ -1,5 +1,6 @@
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
+import bcrypt
 
 from . import models, schemas
 
@@ -17,12 +18,13 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-    fake_password = user.password + "notreallyhashed"
-    db_user = models.User(email=user.email, password=fake_password)
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
+    db_user = models.User(email=user.email, hashed_password=hashed_password.decode('utf-8'))  # Stellen Sie sicher, dass das Modell ein Feld für das gehashte Passwort hat
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 
 def delete_pinentry(db: Session, entry_id: int):
@@ -184,15 +186,15 @@ def add_user_email(db: Session, user: schemas.UserBase):
 
 def fill_out_email_user(db: Session, user: schemas.UserCreate):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-
-    db_user.name = user.name
-    db_user.password = user.password + "notreallyhashed"
-    db_user.birthdate = user.birthdate
-    db_user.profile_picture = user.profile_picture
-
-    db.commit()
-    db.refresh(db_user)
+    if db_user:
+        db_user.name = user.name
+        db_user.hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        db_user.birthdate = user.birthdate
+        db_user.profile_picture = user.profile_picture
+        db.commit()
+        db.refresh(db_user)
     return db_user
+
 
 
 def get_all_users_with_names_or_emails(db: Session):
