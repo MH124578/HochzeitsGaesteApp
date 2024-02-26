@@ -81,6 +81,13 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
 
+@app.get("/get_user_id_by_email/")
+def get_user_id_by_email(email: str, db: Session = Depends(get_db)) -> dict:
+    user = crud.get_user_by_email(db, email=email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Benutzer mit dieser E-Mail-Adresse wurde nicht gefunden.")
+    return {"user_id": user.id}
+
 @app.put("/edit_image/{entry_id}")
 async def edit_image(entry_id: int, text: str = Form(...), db: Session = Depends(get_db)):
     updated_entry = crud.update_pinentry_text(db, entry_id, text)
