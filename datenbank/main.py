@@ -71,7 +71,7 @@ async def get_image(image_id: int, db: Session = Depends(get_db)):
 @app.get("/images_by_category/{category_id}")
 async def get_images_by_category(category_id: int, db: Session = Depends(get_db)):
     images = crud.get_pinentries_by_category(db, category_id=category_id)
-    image_responses = [{"entryId": image.entry_id, "imageUrl": f"http://10.0.2.2:8000/images/{image.entry_id}", "text": image.text, "category_id": image.category_id} for image in images]
+    image_responses = [{"entryId": image.entry_id, "imageUrl": f"http://10.0.2.2:8000/images/{image.entry_id}", "text": image.text,"user_id": image.user_id, "category_id": image.category_id} for image in images]
     return JSONResponse(content=image_responses)
 
 @app.post("/users/", response_model=schemas.User)
