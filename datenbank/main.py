@@ -1,12 +1,10 @@
 from fastapi import FastAPI, File, UploadFile, Depends, Form, HTTPException
 from fastapi.responses import Response, JSONResponse, StreamingResponse
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from io import BytesIO
 from . import crud, models, schemas, database
 from .database import SessionLocal, engine
-import bcrypt
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -206,14 +204,3 @@ def get_family_members(family_name: str, db: Session = Depends(get_db)):
 @app.get("/roles/{role_id}/members/", response_model=list[schemas.GuestRole])
 def get_role_members(role_id: int, db: Session = Depends(get_db)):
     return crud.get_members_by_role(db, role_id)
-
-@app.post("/check_user_credentials/")
-async def check_user_credentials(email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    user = crud.get_user_by_email(db, email=email)
-    if user is None:
-        return jsonable_encoder({"success": False, "message": "Benutzer nicht gefunden."})
-    
-    if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password.encode('utf-8')):
-        return jsonable_encoder({"success": True, "message": "Anmeldeinformationen sind gültig."})
-    else:
-        return jsonable_encoder({"success": False, "message": "Ungültige Anmeldeinformationen."})
