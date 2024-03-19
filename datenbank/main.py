@@ -86,7 +86,7 @@ def get_user_id_by_email(email: str, db: Session = Depends(get_db)) -> int:
     user = crud.get_user_by_email(db, email=email)
     if user is None:
         raise HTTPException(status_code=404, detail="Benutzer mit dieser E-Mail-Adresse wurde nicht gefunden.")
-    return {"user_id": user.id}
+    return user.id
 
 @app.put("/edit_image/{entry_id}")
 async def edit_image(entry_id: int, text: str = Form(...), db: Session = Depends(get_db)):
