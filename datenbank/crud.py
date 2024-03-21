@@ -1,5 +1,6 @@
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
+from typing import List
 
 
 from . import models, schemas
@@ -107,12 +108,15 @@ def create_home_information_entry(db: Session, home_information_entry: schemas.H
     return db_home_information_entry
 
 
-def create_relationship(db: Session, relationship: schemas.RelationshipCreate):
-    db_relationship = models.Relationship(**relationship.dict())
-    db.add(db_relationship)
-    db.commit()
-    db.refresh(db_relationship)
-    return db_relationship
+def create_relationships(db: Session, relationships: List[schemas.RelationshipCreate]):
+    created_relationships = []
+    for relationship in relationships:
+        db_relationship = models.Relationship(**relationship.dict())
+        db.add(db_relationship)
+        db.commit()
+        db.refresh(db_relationship)
+        created_relationships.append(db_relationship)
+    return created_relationships
 
 
 def create_role(db: Session, role: schemas.RoleCreate):

@@ -5,6 +5,7 @@ from sqlalchemy import desc
 from io import BytesIO
 from . import crud, models, schemas, database
 from .database import SessionLocal, engine
+from typing import List
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -172,9 +173,9 @@ def read_all_users_with_names_or_emails(db: Session = Depends(get_db)):
     users_info = crud.get_all_users_with_names_or_emails(db)
     return users_info
 
-@app.post("/relationships/", response_model=schemas.Relationship)
-def create_relationship(relationship: schemas.RelationshipCreate, db: Session = Depends(get_db)):
-    return crud.create_relationship(db, relationship)
+@app.post("/relationships/", response_model=List[schemas.Relationship])
+def create_relationships(relationships: List[schemas.RelationshipCreate], db: Session = Depends(get_db)):
+    return crud.create_relationships(db, relationships)
 
 @app.post("/roles/", response_model=schemas.Role)
 def create_role(role: schemas.RoleCreate, db: Session = Depends(get_db)):
