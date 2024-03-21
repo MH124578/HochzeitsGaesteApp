@@ -110,12 +110,18 @@ def create_home_information_entry(db: Session, home_information_entry: schemas.H
 
 def create_relationships(db: Session, relationships: List[schemas.RelationshipCreate]):
     created_relationships = []
+
+    guest_ids = [relationship.guest_id_1 for relationship in relationships]
+
+    db.query(models.Relationship).filter(models.Relationship.guest_id_1.in_(guest_ids)).delete(synchronize_session=False)
+
     for relationship in relationships:
         db_relationship = models.Relationship(**relationship.dict())
         db.add(db_relationship)
         db.commit()
         db.refresh(db_relationship)
         created_relationships.append(db_relationship)
+
     return created_relationships
 
 
