@@ -196,7 +196,8 @@ def add_user_email(db: Session, user: schemas.UserBase):
 
 def fill_out_email_user(db: Session, user: schemas.UserCreate):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    db_user.name = user.name
+    db_user.first_name = user.first_name
+    db_user.last_name = user.last_name
     db_user.password = user.password + "notreallyhashed"
     db_user.birthdate = user.birthdate
     db_user.profile_picture = user.profile_picture
@@ -210,16 +211,16 @@ def fill_out_email_user(db: Session, user: schemas.UserCreate):
 def get_all_users_with_names_or_emails(db: Session):
     users = db.query(models.User).all()
 
-    users_with_names = [user for user in users if user.name]
-    users_without_names = [user for user in users if not user.name]
+    users_with_names = [user for user in users if user.first_name and user.last_name]
+    users_without_names = [user for user in users if not (user.first_name and user.last_name)]
 
-    sorted_users_with_names = sorted(users_with_names, key=lambda user: user.name)
+    sorted_users_with_names = sorted(users_with_names, key=lambda user: (user.first_name, user.last_name))
 
     sorted_users_without_names = sorted(users_without_names, key=lambda user: user.email)
 
     user_info = []
     for user in sorted_users_with_names:
-        user_info.append({"id": user.id, "name": user.name})
+        user_info.append({"id": user.id, "name": f"{user.first_name} {user.last_name}"})
 
     for user in sorted_users_without_names:
         user_info.append({"id": user.id, "name": user.email})

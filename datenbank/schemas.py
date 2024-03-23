@@ -23,7 +23,8 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    name: str
+    first_name: str
+    last_name: str
     password: str
     birthdate: str
     profile_picture: bytes
