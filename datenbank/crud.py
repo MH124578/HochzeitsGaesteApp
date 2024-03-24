@@ -1,5 +1,6 @@
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List
 
 
@@ -195,6 +196,15 @@ def add_user_email(db: Session, user: schemas.UserBase):
 
 
 def fill_out_email_user(db: Session, user: schemas.UserCreate):
+    family = db.query(models.Family).filter(models.Family.family_name == user.last_name).first()
+
+    if not family:
+        new_family = models.Family(family_name=user.last_name)
+        db.add(new_family)
+        db.commit()  # Commit the addition to generate new_family.id
+        db.refresh(new_family)  # Refresh the object to get the generated ID
+        new_family_id = new_family.id
+
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     db_user.first_name = user.first_name
     db_user.last_name = user.last_name
@@ -202,10 +212,17 @@ def fill_out_email_user(db: Session, user: schemas.UserCreate):
     db_user.birthdate = user.birthdate
     db_user.profile_picture = user.profile_picture
 
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.add(db_user)
 
+    if family:
+        new_family_member = models.FamilyMember(user_id=db_user.id, family_id=family.id)
+    elif not family:
+        new_family_member = models.FamilyMember(user_id=db_user.id, family_id=new_family_id)
+
+    db.add(new_family_member)
+    db.commit()
+
+    return db_user
 
 
 def get_all_users_with_names_or_emails(db: Session):
