@@ -321,6 +321,58 @@ def get_members_by_family(db: Session, family_name: str):
     return members
 
 
+def get_family_members_with_relationships(db: Session, family_name: str):
+    family = db.query(models.Family).filter(models.Family.family_name == family_name).first()
+    if not family:
+        return []
+
+    members = (
+        db.query(models.FamilyMember)
+        .filter(models.FamilyMember.family_id == family.id)
+        .all()
+    )
+
+    family_members_with_relationships = []
+    for member in members:
+        user = db.query(models.User).filter(models.User.id == member.user_id).first()
+        if user:
+            member_info = {
+                "id": member.id,
+                "user_id": member.user_id,
+                "name": f"{user.first_name} {user.last_name}",
+                "birthdate": user.birthdate,
+                "relationships": []
+            }
+
+            relationships = (
+                db.query(models.Relationship)
+                .filter(
+                    (models.Relationship.guest_id_1 == member.user_id) |
+                    (models.Relationship.guest_id_2 == member.user_id)
+                )
+                .all()
+            )
+
+            for relationship in relationships:
+                if relationship.guest_id_1 == member.user_id:
+                    related_member_id = relationship.guest_id_2
+                else:
+                    related_member_id = relationship.guest_id_1
+
+                related_member = db.query(models.User).filter(models.User.id == related_member_id).first()
+                if related_member:
+                    relationship_info = {
+                        "related_member_id": related_member.id,
+                        "related_member_name": f"{related_member.first_name} {related_member.last_name}",
+                        "relationship_type": relationship.relationship_type
+                    }
+                    member_info["relationships"].append(relationship_info)
+
+            family_members_with_relationships.append(member_info)
+
+    return family_members_with_relationships
+
+
 def get_members_by_role(db: Session, role_id: int):
     members = db.query(models.GuestRole).filter(models.GuestRole.role_id == role_id).all()
     return members

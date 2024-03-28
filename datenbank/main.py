@@ -202,6 +202,11 @@ def create_family_member(family_member: schemas.FamilyMemberCreate, db: Session 
 def get_family_members(family_name: str, db: Session = Depends(get_db)):
     return crud.get_members_by_family(db, family_name)
 
+@app.get("/families/{family_name}/members_with_relationships/", response_model=list[dict])
+def get_family_members_with_relationships(family_name: str, db: Session = Depends(get_db)):
+    family_members_with_relationships = crud.get_family_members_with_relationships(db, family_name)
+    return family_members_with_relationships
+
 @app.get("/roles/{role_id}/members/", response_model=list[schemas.GuestRole])
 def get_role_members(role_id: int, db: Session = Depends(get_db)):
     return crud.get_members_by_role(db, role_id)
