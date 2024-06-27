@@ -245,6 +245,34 @@ def get_all_users_with_names_or_emails(db: Session):
     return user_info
 
 
+def get_user_details(db: Session, user_id: int) -> schemas.UserDetails:
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        return None
+
+    roles = db.query(models.GuestRole).filter(models.GuestRole.user_id == user_id).all()
+    relationships = (
+        db.query(models.Relationship)
+        .filter((models.Relationship.guest_id_1 == user_id) | (models.Relationship.guest_id_2 == user_id))
+        .all()
+    )
+    family_memberships = db.query(models.FamilyMember).filter(models.FamilyMember.user_id == user_id).all()
+
+    user_details = schemas.UserDetails(
+        id=db_user.id,
+        email=db_user.email,
+        first_name=db_user.first_name,
+        last_name=db_user.last_name,
+        birthdate=db_user.birthdate,
+        profile_picture=db_user.profile_picture,
+        roles=[schemas.Role(id=role.id, role_name=role.role_name) for role in roles],
+        relationships=[schemas.Relationship(id=rel.id, guest_id_1=rel.guest_id_1, guest_id_2=rel.guest_id_2, relationship_type=rel.relationship_type) for rel in relationships],
+        family_memberships=[schemas.FamilyMember(id=fm.id, user_id=fm.user_id, family_id=fm.family_id) for fm in family_memberships]
+    )
+
+    return user_details
+
+
 def create_default_roles(db: Session):
     existing_roles = db.query(models.Role).count()
 

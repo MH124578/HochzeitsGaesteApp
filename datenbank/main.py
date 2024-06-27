@@ -149,6 +149,13 @@ def read_user(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+@app.get("/users/{user_id}/details", response_model=schemas.UserDetails)
+def get_user_details(user_id: int, db: Session = Depends(get_db)):
+    user_details = crud.get_user_details(db, user_id)
+    if not user_details:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user_details
+
 @app.post("/home_information/", response_model=schemas.HomeInformationEntry)
 def create_home_information_entry(user_id: int, home_information: schemas.HomeInformationEntryCreate, db: Session = Depends(get_db)):
     return crud.create_home_information_entry(db, home_information, user_id=user_id)

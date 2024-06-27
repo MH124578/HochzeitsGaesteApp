@@ -1,4 +1,5 @@
-from typing import Union
+from msilib import schema
+from typing import List, Union
 import re
 from pydantic import BaseModel, validator
 
@@ -35,6 +36,18 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class UserDetails(BaseModel):
+    id: int
+    email: str
+    first_name: str
+    last_name: str
+    birthdate: str
+    profile_picture: bytes
+    roles: List['Role'] = []
+    relationships: List['Relationship'] = []
+    family_memberships: List['FamilyMember'] = []
 
 
 class HomeInformationEntryBase(BaseModel):
